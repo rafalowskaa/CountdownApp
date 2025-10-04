@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Threading;
+using System.Globalization;
 using Microsoft.Win32;
 
 namespace CountdownApp
@@ -22,6 +23,7 @@ namespace CountdownApp
             _timer.Start();
 
             UpdateCountdown();
+            UpdateEventDateText();
             UpdateAutostartButtonText();
         }
 
@@ -39,6 +41,14 @@ namespace CountdownApp
             CountdownText.Text = $"{diff.Days} d {diff.Hours:D2} h {diff.Minutes:D2} m {diff.Seconds:D2} s";
         }
 
+        private void UpdateEventDateText()
+        {
+            var culture = new CultureInfo("pl-PL");
+            var formatted = _target.ToString("dddd, dd MMMM yyyy HH:mm", culture);
+            var titleCased = culture.TextInfo.ToTitleCase(formatted);
+            EventDateText.Text = $"Docelowy termin: {titleCased}";
+        }
+
         private void SetDateBtn_Click(object sender, RoutedEventArgs e)
         {
             var input = Microsoft.VisualBasic.Interaction.InputBox(
@@ -50,6 +60,7 @@ namespace CountdownApp
             {
                 _target = parsed;
                 UpdateCountdown();
+                UpdateEventDateText();
                 MessageBox.Show($"Ustawiono datę: {_target}", "OK",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
