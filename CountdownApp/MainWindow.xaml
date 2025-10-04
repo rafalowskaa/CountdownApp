@@ -70,7 +70,7 @@
                         Padding="16"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                    <Image Source="Assets/winter_scene.gif"
+                    <Image Source="pack://application:,,,/Assets/winter_scene.gif"
                            Stretch="Uniform"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -78,9 +78,9 @@
                            Height="220"/>
                 </Border>
 
-                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,12,0,0">
-                    <TextBlock Text="Spokojny dom, ciepły komin i zimowa cisza." Style="{StaticResource CaptionTextStyle}" TextAlignment="Center"/>
-                    <TextBlock Text="Pozostań na czasie i złap klimat chill house." Style="{StaticResource CaptionTextStyle}" TextAlignment="Center"/>
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,12,0,0" Width="260">
+                    <TextBlock Text="Spokojny dom, ciepły komin i zimowa cisza." Style="{StaticResource CaptionTextStyle}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                    <TextBlock Text="Pozostań na czasie i złap klimat chill house." Style="{StaticResource CaptionTextStyle}" TextAlignment="Center" TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
         </Grid>

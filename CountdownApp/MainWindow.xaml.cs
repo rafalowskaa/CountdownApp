@@ -56,48 +56,23 @@ namespace CountdownApp
             {
                 Topmost = false;
 
-                var input = Microsoft.VisualBasic.Interaction.InputBox(
-                    "Podaj datę i godzinę (np. 2026-06-01 09:00):",
-                    "Ustaw wydarzenie",
-                    _target.ToString("yyyy-MM-dd HH:mm"));
+                var dialog = new SetDateWindow(_target)
+                {
+                    Owner = this
+                };
 
-                if (string.IsNullOrWhiteSpace(input))
+                var result = dialog.ShowDialog();
+                if (result != true)
                 {
                     return;
                 }
 
-                var trimmedInput = input.Trim();
-                var culture = new CultureInfo("pl-PL");
-                var formats = new[]
-                {
-                    "yyyy-MM-dd HH:mm",
-                    "yyyy-MM-dd HH:mm:ss",
-                    "dd.MM.yyyy HH:mm",
-                    "dd.MM.yyyy HH:mm:ss"
-                };
+                _target = dialog.SelectedDateTime;
+                UpdateCountdown();
+                UpdateEventDateText();
 
-                if (DateTime.TryParseExact(trimmedInput, formats, culture,
-                        DateTimeStyles.AssumeLocal, out var parsed))
-                {
-                    _target = parsed;
-                    UpdateCountdown();
-                    UpdateEventDateText();
-                    MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else if (DateTime.TryParse(trimmedInput, culture, DateTimeStyles.AssumeLocal, out parsed))
-                {
-                    _target = parsed;
-                    UpdateCountdown();
-                    UpdateEventDateText();
-                    MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    MessageBox.Show(this, "Nieprawidłowy format daty/godziny.", "Błąd",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
             finally
             {
