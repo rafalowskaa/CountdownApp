@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Threading;
-using System.Globalization;
 using Microsoft.Win32;
 
 namespace CountdownApp
@@ -10,6 +13,10 @@ namespace CountdownApp
     {
         private readonly DispatcherTimer _timer;
         private DateTime _target = new DateTime(2026, 6, 1, 9, 0, 0); // <- podmień na swoją datę
+        private readonly string _settingsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "CountdownApp",
+            "settings.json");
 
         private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string AppRunName = "CountdownApp";
@@ -18,6 +25,8 @@ namespace CountdownApp
         {
             InitializeComponent();
 
+            LoadSettings();
+
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (_, __) => UpdateCountdown();
             _timer.Start();
@@ -25,6 +34,8 @@ namespace CountdownApp
             UpdateCountdown();
             UpdateEventDateText();
             UpdateAutostartButtonText();
+
+            Closing += (_, __) => SaveSettings();
         }
 
         private void UpdateCountdown()
@@ -70,6 +81,7 @@ namespace CountdownApp
                 _target = dialog.SelectedDateTime;
                 UpdateCountdown();
                 UpdateEventDateText();
+                SaveSettings();
 
                 MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
                     MessageBoxButton.OK, MessageBoxImage.Information);
@@ -122,6 +134,61 @@ namespace CountdownApp
         {
             using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath, writable: true);
             key?.DeleteValue(AppRunName, false);
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                if (!File.Exists(_settingsPath))
+                {
+                    return;
+                }
+
+                var json = File.ReadAllText(_settingsPath);
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    return;
+                }
+
+                var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                if (settings?.TargetDate is DateTime savedTarget)
+                {
+                    _target = savedTarget;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Nie udało się wczytać ustawień: {ex}");
+            }
+        }
+
+        private void SaveSettings()
+        {
+            try
+            {
+                var settings = new AppSettings
+                {
+                    TargetDate = _target
+                };
+
+                var directory = Path.GetDirectoryName(_settingsPath);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+                File.WriteAllText(_settingsPath, json);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Nie udało się zapisać ustawień: {ex}");
+            }
         }
     }
 }
