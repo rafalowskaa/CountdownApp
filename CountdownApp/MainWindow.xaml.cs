@@ -51,23 +51,57 @@ namespace CountdownApp
 
         private void SetDateBtn_Click(object sender, RoutedEventArgs e)
         {
-            var input = Microsoft.VisualBasic.Interaction.InputBox(
-                "Podaj datę i godzinę (np. 2026-06-01 09:00):",
-                "Ustaw wydarzenie",
-                _target.ToString("yyyy-MM-dd HH:mm"));
+            var previousTopmost = Topmost;
+            try
+            {
+                Topmost = false;
 
-            if (DateTime.TryParse(input, out var parsed))
-            {
-                _target = parsed;
-                UpdateCountdown();
-                UpdateEventDateText();
-                MessageBox.Show($"Ustawiono datę: {_target}", "OK",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var input = Microsoft.VisualBasic.Interaction.InputBox(
+                    "Podaj datę i godzinę (np. 2026-06-01 09:00):",
+                    "Ustaw wydarzenie",
+                    _target.ToString("yyyy-MM-dd HH:mm"));
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    return;
+                }
+
+                var trimmedInput = input.Trim();
+                var culture = new CultureInfo("pl-PL");
+                var formats = new[]
+                {
+                    "yyyy-MM-dd HH:mm",
+                    "yyyy-MM-dd HH:mm:ss",
+                    "dd.MM.yyyy HH:mm",
+                    "dd.MM.yyyy HH:mm:ss"
+                };
+
+                if (DateTime.TryParseExact(trimmedInput, formats, culture,
+                        DateTimeStyles.AssumeLocal, out var parsed))
+                {
+                    _target = parsed;
+                    UpdateCountdown();
+                    UpdateEventDateText();
+                    MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (DateTime.TryParse(trimmedInput, culture, DateTimeStyles.AssumeLocal, out parsed))
+                {
+                    _target = parsed;
+                    UpdateCountdown();
+                    UpdateEventDateText();
+                    MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show(this, "Nieprawidłowy format daty/godziny.", "Błąd",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            else if (!string.IsNullOrWhiteSpace(input))
+            finally
             {
-                MessageBox.Show("Nieprawidłowy format daty/godziny.", "Błąd",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Topmost = previousTopmost;
             }
         }
 
