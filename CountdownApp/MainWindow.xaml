@@ -47,7 +47,7 @@
                 </Viewbox>
                 <Border Background="#30FFFFFF" CornerRadius="16" Padding="12,8" Margin="0,4,0,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="🎄" FontSize="20" Margin="0,0,6,0"/>
+                        <TextBlock Text="☀️" FontSize="20" Margin="0,0,6,0"/>
                         <TextBlock x:Name="EventDateText"
                                    Style="{StaticResource CaptionTextStyle}"
                                    Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -71,7 +71,7 @@
                         Padding="24"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                    <local:AnimatedGifImage GifSource="pack://application:,,,/Assets/winter_scene.gif"
+                    <local:AnimatedGifImage GifSource="pack://application:,,,/Assets/freedom.gif"
                                              Stretch="Uniform"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
@@ -85,7 +85,7 @@
                                TextWrapping="Wrap"
                                LineStackingStrategy="BlockLineHeight"
                                LineHeight="18" Width="249" Height="62">
-                        <Run Text="Spokojny dom, ciepły komin i zimowa cisza. Pozostań na czasie i złap klimat chill house." />
+                        <Run Text="Najlepiej oddycham między gwiazdami, gdy nikt nie zagłusza nieba." />
                         
                     </TextBlock>
                 </StackPanel>

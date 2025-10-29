@@ -8,14 +8,4 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Assets\winter_scene.gif" />
-  </ItemGroup>
-
-  
-
-	<ItemGroup>
-		<Resource Include="Assets\winter_scene.gif" />
-	</ItemGroup>
-
 </Project>
