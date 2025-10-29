@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -51,14 +53,14 @@ namespace CountdownApp
 
             StreamResourceInfo? resourceInfo = null;
 
-            if (GifSource.IsAbsoluteUri)
+            foreach (var candidateUri in EnumerateCandidateUris(GifSource))
             {
-                resourceInfo = Application.GetResourceStream(GifSource);
-            }
-            else
-            {
-                var absoluteUri = new Uri($"pack://application:,,,/{GifSource.OriginalString.TrimStart('/')}");
-                resourceInfo = Application.GetResourceStream(absoluteUri);
+                resourceInfo = TryGetResourceStream(candidateUri);
+
+                if (resourceInfo?.Stream != null)
+                {
+                    break;
+                }
             }
 
             if (resourceInfo?.Stream == null)
@@ -118,5 +120,62 @@ namespace CountdownApp
 
             return TimeSpan.FromMilliseconds(100);
         }
+
+        private static IEnumerable<Uri> EnumerateCandidateUris(Uri gifSource)
+        {
+            if (gifSource.IsAbsoluteUri)
+            {
+                yield return gifSource;
+
+                if (string.Equals(gifSource.Scheme, "pack", StringComparison.OrdinalIgnoreCase))
+                {
+                    foreach (var uri in EnumeratePackCandidates(gifSource))
+                    {
+                        yield return uri;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var uri in EnumerateRelativeCandidates(gifSource.OriginalString))
+                {
+                    yield return uri;
+                }
+            }
+        }
+
+        private static IEnumerable<Uri> EnumeratePackCandidates(Uri packUri)
+        {
+            var path = packUri.GetComponents(UriComponents.Path, UriFormat.Unescaped).TrimStart('/');
+
+            foreach (var uri in EnumerateRelativeCandidates(path))
+            {
+                yield return uri;
+            }
+        }
+
+        private static IEnumerable<Uri> EnumerateRelativeCandidates(string rawPath)
+        {
+            var relativePath = rawPath.TrimStart('/');
+            var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+
+            yield return new Uri(relativePath, UriKind.Relative);
+            yield return new Uri($"/{assemblyName};component/{relativePath}", UriKind.Relative);
+            yield return new Uri($"pack://application:,,,/{relativePath}", UriKind.Absolute);
+            yield return new Uri($"pack://application:,,,/{assemblyName};component/{relativePath}", UriKind.Absolute);
+        }
+
+        private static StreamResourceInfo? TryGetResourceStream(Uri uri)
+        {
+            try
+            {
+                return Application.GetResourceStream(uri);
+            }
+            catch (IOException)
+            {
+                return null;
+            }
+        }
+
     }
 }
