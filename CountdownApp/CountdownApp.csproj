@@ -8,4 +8,12 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Assets\freedom.gif" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\freedom.gif" />
+  </ItemGroup>
+
 </Project>
