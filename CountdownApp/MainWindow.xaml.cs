@@ -3,6 +3,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Win32;
@@ -12,7 +15,10 @@ namespace CountdownApp
     public partial class MainWindow : Window
     {
         private readonly DispatcherTimer _timer;
-        private DateTime _target = new DateTime(2026, 6, 1, 9, 0, 0); // <- podmień na swoją datę
+        private DateTime _target = new DateTime(2026, 6, 1, 9, 0, 0);
+        private string? _mediaPath;
+        private string? _mediaCaption;
+        private string? _eventIcon;
         private readonly string _settingsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "CountdownApp",
@@ -20,6 +26,9 @@ namespace CountdownApp
 
         private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string AppRunName = "CountdownApp";
+        private const string DefaultMediaPath = "pack://application:,,,/Assets/freedom.gif";
+        private const string DefaultMediaCaption = "Najlepiej oddycham między gwiazdami, gdy nikt nie zagłusza nieba.";
+        private const string DefaultEventIcon = "☀️";
 
         public MainWindow()
         {
@@ -33,6 +42,9 @@ namespace CountdownApp
 
             UpdateCountdown();
             UpdateEventDateText();
+            UpdateMediaContent();
+            UpdateMediaCaption();
+            UpdateEventIconDisplay();
             UpdateAutostartButtonText();
 
             Closing += (_, __) => SaveSettings();
@@ -67,7 +79,7 @@ namespace CountdownApp
             {
                 Topmost = false;
 
-                var dialog = new SetDateWindow(_target)
+                var dialog = new SetDateWindow(_target, _mediaPath, _mediaCaption, _eventIcon)
                 {
                     Owner = this
                 };
@@ -79,8 +91,14 @@ namespace CountdownApp
                 }
 
                 _target = dialog.SelectedDateTime;
+                _mediaPath = dialog.SelectedMediaPath;
+                _mediaCaption = dialog.SelectedCaption;
+                _eventIcon = dialog.SelectedIcon;
                 UpdateCountdown();
                 UpdateEventDateText();
+                UpdateMediaContent();
+                UpdateMediaCaption();
+                UpdateEventIconDisplay();
                 SaveSettings();
 
                 MessageBox.Show(this, $"Ustawiono datę: {_target}", "OK",
@@ -152,9 +170,16 @@ namespace CountdownApp
                 }
 
                 var settings = JsonSerializer.Deserialize<AppSettings>(json);
-                if (settings?.TargetDate is DateTime savedTarget)
+                if (settings != null)
                 {
-                    _target = savedTarget;
+                    if (settings.TargetDate is DateTime savedTarget)
+                    {
+                        _target = savedTarget;
+                    }
+
+                    _mediaPath = NormalizeString(settings.MediaPath);
+                    _mediaCaption = NormalizeString(settings.MediaCaption);
+                    _eventIcon = NormalizeString(settings.EventIcon);
                 }
             }
             catch (Exception ex)
@@ -169,7 +194,10 @@ namespace CountdownApp
             {
                 var settings = new AppSettings
                 {
-                    TargetDate = _target
+                    TargetDate = _target,
+                    MediaPath = _mediaPath,
+                    MediaCaption = _mediaCaption,
+                    EventIcon = _eventIcon
                 };
 
                 var directory = Path.GetDirectoryName(_settingsPath);
@@ -189,6 +217,106 @@ namespace CountdownApp
             {
                 Debug.WriteLine($"Nie udało się zapisać ustawień: {ex}");
             }
+        }
+
+        private void UpdateMediaContent()
+        {
+            if (!TrySetMediaContent(_mediaPath))
+            {
+                TrySetMediaContent(DefaultMediaPath);
+            }
+        }
+
+        private bool TrySetMediaContent(string? source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return false;
+            }
+
+            if (!Uri.TryCreate(source, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                return false;
+            }
+
+            FrameworkElement mediaElement;
+            if (IsGifSource(source))
+            {
+                mediaElement = new AnimatedGifImage
+                {
+                    Width = 220,
+                    Height = 220,
+                    Stretch = Stretch.Uniform,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    GifSource = uri
+                };
+            }
+            else
+            {
+                var bitmap = LoadBitmap(uri);
+                if (bitmap == null)
+                {
+                    return false;
+                }
+
+                mediaElement = new Image
+                {
+                    Width = 220,
+                    Height = 220,
+                    Stretch = Stretch.Uniform,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Source = bitmap
+                };
+            }
+
+            MediaPresenter.Content = mediaElement;
+            return true;
+        }
+
+        private static bool IsGifSource(string source)
+        {
+            return source.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static ImageSource? LoadBitmap(Uri uri)
+        {
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.UriSource = uri;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void UpdateMediaCaption()
+        {
+            var caption = string.IsNullOrWhiteSpace(_mediaCaption)
+                ? DefaultMediaCaption
+                : _mediaCaption;
+            MediaCaptionText.Text = caption;
+        }
+
+        private void UpdateEventIconDisplay()
+        {
+            var icon = string.IsNullOrWhiteSpace(_eventIcon)
+                ? DefaultEventIcon
+                : _eventIcon;
+            EventIconDisplay.Text = icon;
+        }
+
+        private static string? NormalizeString(string? value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
     }
 }

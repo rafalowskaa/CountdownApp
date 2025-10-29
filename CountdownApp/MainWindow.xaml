@@ -47,7 +47,7 @@
                 </Viewbox>
                 <Border Background="#30FFFFFF" CornerRadius="16" Padding="12,8" Margin="0,4,0,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="☀️" FontSize="20" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="EventIconDisplay" Text="☀️" FontSize="20" Margin="0,0,6,0"/>
                         <TextBlock x:Name="EventDateText"
                                    Style="{StaticResource CaptionTextStyle}"
                                    Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -71,23 +71,19 @@
                         Padding="24"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                    <local:AnimatedGifImage GifSource="pack://application:,,,/Assets/freedom.gif"
-                                             Stretch="Uniform"
-                                             HorizontalAlignment="Center"
-                                             VerticalAlignment="Center"
-                                             Width="220"
-                                             Height="220"/>
+                    <ContentControl x:Name="MediaPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
 
                 <StackPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,8,0,0" Width="260">
-                    <TextBlock Style="{StaticResource CaptionTextStyle}"
+                    <TextBlock x:Name="MediaCaptionText"
+                               Style="{StaticResource CaptionTextStyle}"
                                TextAlignment="Center"
                                TextWrapping="Wrap"
                                LineStackingStrategy="BlockLineHeight"
-                               LineHeight="18" Width="249" Height="62">
-                        <Run Text="Najlepiej oddycham między gwiazdami, gdy nikt nie zagłusza nieba." />
-                        
-                    </TextBlock>
+                               LineHeight="18"
+                               Width="249"
+                               Height="62"
+                               Text="Najlepiej oddycham między gwiazdami, gdy nikt nie zagłusza nieba."/>
                 </StackPanel>
             </Grid>
         </Grid>

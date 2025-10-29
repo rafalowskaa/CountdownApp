@@ -85,6 +85,53 @@
                 </StackPanel>
             </Grid>
 
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Text="Obraz lub animacja"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8"
+                           Foreground="#41536B"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="MediaPathTextBox"
+                             Width="260"
+                             Margin="0,0,12,0"
+                             TextWrapping="NoWrap"/>
+                    <Button Content="Wybierz..."
+                            Width="90"
+                            Click="ChooseMediaButton_OnClick"/>
+                    <Button Content="Wyczyść"
+                            Width="80"
+                            Margin="8,0,0,0"
+                            Click="ClearMediaButton_OnClick"/>
+                </StackPanel>
+                <TextBlock Text="Zostaw puste, aby użyć domyślnej grafiki."
+                           Style="{StaticResource CaptionTextStyle}"
+                           Margin="0,6,0,0"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,20">
+                <TextBlock Text="Podpis pod grafiką"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8"
+                           Foreground="#41536B"/>
+                <TextBox x:Name="CaptionTextBox"
+                         Width="360"
+                         Height="60"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Ikona przy dacie"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8"
+                           Foreground="#41536B"/>
+                <TextBox x:Name="IconTextBox"
+                         Width="80"
+                         MaxLength="4"
+                         HorizontalContentAlignment="Center"
+                         FontSize="20"/>
+            </StackPanel>
+
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
                 <Button x:Name="CancelButton"
                         Content="Anuluj"

@@ -51,24 +51,13 @@ namespace CountdownApp
                 return;
             }
 
-            StreamResourceInfo? resourceInfo = null;
+            using Stream? stream = OpenStream(GifSource);
 
-            foreach (var candidateUri in EnumerateCandidateUris(GifSource))
-            {
-                resourceInfo = TryGetResourceStream(candidateUri);
-
-                if (resourceInfo?.Stream != null)
-                {
-                    break;
-                }
-            }
-
-            if (resourceInfo?.Stream == null)
+            if (stream == null)
             {
                 return;
             }
 
-            using Stream stream = resourceInfo.Stream;
             var decoder = new GifBitmapDecoder(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
 
             if (decoder.Frames.Count == 0)
@@ -119,6 +108,38 @@ namespace CountdownApp
             }
 
             return TimeSpan.FromMilliseconds(100);
+        }
+
+        private static Stream? OpenStream(Uri gifSource)
+        {
+            if (gifSource.IsAbsoluteUri && string.Equals(gifSource.Scheme, Uri.UriSchemeFile, StringComparison.OrdinalIgnoreCase))
+            {
+                var filePath = gifSource.LocalPath;
+                if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+                {
+                    return File.OpenRead(filePath);
+                }
+            }
+
+            foreach (var candidateUri in EnumerateCandidateUris(gifSource))
+            {
+                if (candidateUri.IsAbsoluteUri && string.Equals(candidateUri.Scheme, Uri.UriSchemeFile, StringComparison.OrdinalIgnoreCase))
+                {
+                    var candidatePath = candidateUri.LocalPath;
+                    if (!string.IsNullOrEmpty(candidatePath) && File.Exists(candidatePath))
+                    {
+                        return File.OpenRead(candidatePath);
+                    }
+                }
+
+                var resourceInfo = TryGetResourceStream(candidateUri);
+                if (resourceInfo?.Stream != null)
+                {
+                    return resourceInfo.Stream;
+                }
+            }
+
+            return null;
         }
 
         private static IEnumerable<Uri> EnumerateCandidateUris(Uri gifSource)
