@@ -26,7 +26,7 @@ dotnet restore CountdownApp.sln
 dotnet run --project CountdownApp/CountdownApp.csproj
 ```
 
-On first launch, choose **Ustaw datę...** to set a future event. The source contains a fixed initial date; it may already be in the past.
+On first launch, the default event is 30 days ahead at 09:00. Choose **Ustaw datę...** to set your own event; previously saved settings are retained.
 
 ## Build a local Windows package
 
