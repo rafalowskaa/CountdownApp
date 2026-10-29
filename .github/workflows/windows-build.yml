@@ -1,0 +1,34 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore CountdownApp.sln
+      - name: Build
+        run: dotnet build CountdownApp.sln --configuration Release --no-restore
+      - name: Publish
+        run: dotnet publish CountdownApp/CountdownApp.csproj --configuration Release --no-build --output artifacts/CountdownApp
+      - name: Upload application
+        uses: actions/upload-artifact@v7
+        with:
+          name: CountdownApp-windows
+          path: artifacts/CountdownApp/
+          if-no-files-found: error
+          retention-days: 14

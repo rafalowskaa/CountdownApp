@@ -15,7 +15,7 @@ namespace CountdownApp
     public partial class MainWindow : Window
     {
         private readonly DispatcherTimer _timer;
-        private DateTime _target = new DateTime(2026, 6, 1, 9, 0, 0);
+        private DateTime _target = DateTime.Today.AddDays(30).AddHours(9);
         private string? _mediaPath;
         private string? _mediaCaption;
         private string? _eventIcon;
