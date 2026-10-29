@@ -50,3 +50,7 @@ Settings are stored in `%APPDATA%\CountdownApp\settings.json`. Windows autostart
 | `AppSettings.cs` | Saved settings model |
 
 This is a desktop portfolio project. There is no dedicated automated test project in the repository.
+
+## Licence
+
+Original project source code is licensed under [MIT](LICENSE). Third-party libraries and bundled media remain subject to their own rights and licences.
